@@ -154,9 +154,10 @@ $_emitted-density: () !default;
   // If the legacy pattern is used, we generate a container object only with a light-themed
   // configuration for the `color` theming part.
   @if $accent != null {
+    $palettes: ( palettes: primary accent warn );
     @return private-create-backwards-compatibility-theme(_mat-validate-theme((
       _is-legacy-theme: true,
-      color: _mat-create-light-color-config($primary, $accent, $warn),
+      color: map.merge($palette, _mat-create-light-color-config($primary, $accent, $warn)),
     )));
   }
   // If the map pattern is used (1), we just pass-through the configurations for individual
@@ -165,10 +166,16 @@ $_emitted-density: () !default;
   $result: $primary;
   @if map.get($primary, color) {
     $color-settings: map.get($primary, color);
+    $palette-keys: primary accent warn;
+    @each $key, $palette in $color-settings {
+      @if false == index($palette-keys, $key) {
+        $palette-keys: list.append($palette-keys, $key);
+      }
+    }
     $primary: map.get($color-settings, primary);
     $accent: map.get($color-settings, accent);
     $warn: map.get($color-settings, warn);
-    $result: map.merge($result, (color: _mat-create-light-color-config($primary, $accent, $warn)));
+    $result: map.merge($result, (color: map.merge(( palettes: $palette-keys), _mat-create-light-color-config($primary, $accent, $warn))));
   }
   @return private-create-backwards-compatibility-theme(_mat-validate-theme($result));
 }
@@ -194,9 +201,10 @@ $_emitted-density: () !default;
   // If the legacy pattern is used, we generate a container object only with a dark-themed
   // configuration for the `color` theming part.
   @if $accent != null {
+    $palettes: ( palettes: primary accent warn );
     @return private-create-backwards-compatibility-theme(_mat-validate-theme((
       _is-legacy-theme: true,
-      color: _mat-create-dark-color-config($primary, $accent, $warn),
+      color: map.merge($palettes, _mat-create-dark-color-config($primary, $accent, $warn)),
     )));
   }
   // If the map pattern is used (1), we just pass-through the configurations for individual
@@ -205,12 +213,26 @@ $_emitted-density: () !default;
   $result: $primary;
   @if map.get($primary, color) {
     $color-settings: map.get($primary, color);
+    $palette-keys: primary accent warn;
+    @each $key, $palette in $color-settings {
+      @if false == index($palette-keys, $key) {
+        $palette-keys: list.append($palette-keys, $key);
+      }
+    }
     $primary: map.get($color-settings, primary);
     $accent: map.get($color-settings, accent);
     $warn: map.get($color-settings, warn);
-    $result: map.merge($result, (color: _mat-create-dark-color-config($primary, $accent, $warn)));
+    $result: map.merge($result, (color: map.merge(( palettes: $palette-keys), _mat-create-dark-color-config($primary, $accent, $warn))));
   }
   @return private-create-backwards-compatibility-theme(_mat-validate-theme($result));
+}
+
+@function get-theme-palettes($theme-or-config) {
+  $palettes: map.get($theme-or-config, palettes);
+  @if not $palettes {
+    @return primary accent warn;
+  }
+  @return $palettes;
 }
 
 /// Gets the color configuration from the given theme or configuration.
