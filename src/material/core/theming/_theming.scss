@@ -157,7 +157,7 @@ $_emitted-density: () !default;
     $palettes: ( palettes: primary accent warn );
     @return private-create-backwards-compatibility-theme(_mat-validate-theme((
       _is-legacy-theme: true,
-      color: map.merge($palette, _mat-create-light-color-config($primary, $accent, $warn)),
+      color: map.merge($palettes, _mat-create-light-color-config($primary, $accent, $warn)),
     )));
   }
   // If the map pattern is used (1), we just pass-through the configurations for individual
